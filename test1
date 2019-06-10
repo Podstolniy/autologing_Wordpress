@@ -1,0 +1,78 @@
+# coding=utf-8
+import requests
+import urllib.request
+import time
+import threading
+from datetime import datetime
+from bs4 import BeautifulSoup
+from wordpress import API
+from wordpress import api as wpapi
+from wordpress.auth import OAuth
+
+url = "http://karamba.rumba.ru"
+
+headers = {'user-agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:47.0) Gecko/20100101 Firefox/47.0',
+            'Accept': 'text/html, application/xhtml+xml, application/xml;q=0.9, */*;q=0.8',
+            'Accept-Language': 'ru-RU, ru;q=0.9, en-US;q=0.8, en;q=0.7, fr;q=0.6',
+            'Cookie': 'karamba=karambaok;wordpress_test_cookie=WP+Cookie+check'
+           }
+
+session = requests.Session()
+
+load = {'log':u'admin','pwd': u'123456','wp-submit': 'Войти',
+    'redirect_to': "http://karamba.rumba.ru/wp-admin/index.php",'testcookie': '1'}
+
+load1 = {'log':u'test1','pwd': u'111111','wp-submit': 'Войти',
+    'redirect_to': "http://karamba.rumba.ru/wp-admin/index.php",'testcookie': '1'}
+
+#test = API(url = "http://karamba.rumba.ru/wp-admin/index.php",
+#            consumer_key="XXXXXXXXXXXX",
+#            consumer_secret="XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+#            api="wp-json",
+#            version='wp/v2',
+#            wp_user="test1",
+#            wp_pass="111111",
+#            basic_auth = True,
+#            user_auth = True,
+#           )
+
+gout = {'action' : 'logout', 'loggedout' : 'true',
+            'redirect_to': "http://karamba.rumba.ru/wp-login.php",
+            'testcookie': '1'}
+            
+def timeout(time):
+    def ssmmhh(*args, **kwargs):
+        start = datetime.now()
+        result = time(*args, **kwargs)
+        print("Time_logging=", datetime.now()-start)
+        return result
+    return ssmmhh
+
+@timeout
+def authentif (aut):
+    try:
+        r = session.post(url, aut, headers=headers, timeout=1)
+        soup = BeautifulSoup (r.text,'html.parser')
+	      #print(soup.text)
+		    l = session.post(url, gout,  headers = headers)
+		    soup1 = BeautifulSoup (l.text,'html.parser')
+		    #print(soup1.text)
+    except requests.exceptions.ConnectionError:
+        print('No connecting')
+    return soup1
+
+data = {0:load, 1:load1}
+for a in data:
+    authentif(data[a])
+	
+stek = []
+for potok in data:
+    stek.append(threading.Thread(target=authentif, args=(data[potok],)))
+for line in stek:
+    line.start()
+for line in stek:
+    line.join()
+
+if __name__ == '__main__':
+    pass
+
