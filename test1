@@ -53,10 +53,10 @@ def authentif (aut):
     try:
         r = session.post(url, aut, headers=headers, timeout=1)
         soup = BeautifulSoup (r.text,'html.parser')
-	      #print(soup.text)
-		    l = session.post(url, gout,  headers = headers)
-		    soup1 = BeautifulSoup (l.text,'html.parser')
-		    #print(soup1.text)
+	#print(soup.text)
+	l = session.post(url, gout,  headers = headers)
+	soup1 = BeautifulSoup (l.text,'html.parser')
+	#print(soup1.text)
     except requests.exceptions.ConnectionError:
         print('No connecting')
     return soup1
